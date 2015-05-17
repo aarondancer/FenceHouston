@@ -161,15 +161,15 @@ public class GeofenceStore implements ConnectionCallbacks,
     @Override
     public void onLocationChanged(Location location) {
 
-        Log.v(TAG, "Location Information\n"
-                + "==========\n"
-                + "Provider:\t" + location.getProvider() + "\n"
-                + "Lat & Long:\t" + location.getLatitude() + ", "
-                + location.getLongitude() + "\n"
-                + "Altitude:\t" + location.getAltitude() + "\n"
-                + "Bearing:\t" + location.getBearing() + "\n"
-                + "Speed:\t\t" + location.getSpeed() + "\n"
-                + "Accuracy:\t" + location.getAccuracy() + "\n");
+//        Log.v(TAG, "Location Information\n"
+//                + "==========\n"
+//                + "Provider:\t" + location.getProvider() + "\n"
+//                + "Lat & Long:\t" + location.getLatitude() + ", "
+//                + location.getLongitude() + "\n"
+//                + "Altitude:\t" + location.getAltitude() + "\n"
+//                + "Bearing:\t" + location.getBearing() + "\n"
+//                + "Speed:\t\t" + location.getSpeed() + "\n"
+//                + "Accuracy:\t" + location.getAccuracy() + "\n");
     }
 
     public void disconnect() {

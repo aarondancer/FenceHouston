@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.provider.SyncStateContract;
 import android.support.v4.app.FragmentActivity;
@@ -33,9 +35,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.GetCallback;
+import com.parse.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraChangeListener {
@@ -68,13 +74,15 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
      * Geofence Store
      */
     private GeofenceStore mGeofenceStore;
-
+    ParseObject PublicArt;
+    ArrayList<ParseObject> PublicArtPieces = new ArrayList<ParseObject>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
         // Initializing variables
         mGeofences = new ArrayList<Geofence>();
         mGeofenceCoordinates = new ArrayList<LatLng>();
@@ -87,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
 
         // Adding associated geofence radius' to array.
-        mGeofenceRadius.add(500);
+        mGeofenceRadius.add(100);
         mGeofenceRadius.add(50);
         mGeofenceRadius.add(160);
         mGeofenceRadius.add(160);
@@ -142,8 +150,72 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
         // Add the geofences to the GeofenceStore object.
         mGeofenceStore = new GeofenceStore(this, mGeofences);
-
+        populatePublicArt();
     }
+
+    private void populatePublicArt(){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Channel");
+        query.whereEqualTo("name", "Public Art");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> resultList, ParseException e) {
+                if (e == null) {
+                    PublicArt = resultList.get(0);
+                    getPublicArtPieces();
+                } else {
+                    Log.d("score", "Error: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void getPublicArtPieces(){
+        final List<String> ids = PublicArt.getList("Fences");
+        for (int i = 0; i < 50; i++) {
+            final int j = i;
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
+            query.getInBackground(ids.get(i), new GetCallback<ParseObject>() {
+                public void done(ParseObject object, ParseException e) {
+                    if (e == null) {
+                        Geocoder coder = new Geocoder(MapsActivity.this);
+                        double longitude;
+                        double latitude;
+//                        Log.d("Now attempting to place", object.getObjectId());
+                        try {
+                            ArrayList<Address> addresses = (ArrayList<Address>) coder.getFromLocationName(object.getString("address"), 1);
+                            if (addresses.size() > 0) {
+                                longitude = addresses.get(0).getLongitude();
+                                latitude = addresses.get(0).getLatitude();
+                                float radius = 25;
+                                mGeofences.add(new Geofence.Builder()
+                                        .setRequestId(object.getString("name"))
+                                                // The coordinates of the center of the geofence and the radius in meters.
+                                        .setCircularRegion(latitude, longitude, radius)
+                                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                        .setTransitionTypes(
+                                                Geofence.GEOFENCE_TRANSITION_ENTER
+                                                        | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+                                mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
+
+                                mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                        .radius(radius)
+                                        .fillColor(0x40ff0000)
+                                        .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                                mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                        .radius(radius / 1.5)
+                                        .fillColor(0x80AA0000)
+                                        .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                            }
+                        } catch (IOException ee) {
+//                            ee.printStackTrace();
+
+                        }
+
+                    }
+                }
+            });
+        }
+    }
+
 
     @Override
     protected void onStart() {
@@ -204,10 +276,9 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mMap.setMyLocationEnabled(true);
         mMap.setOnCameraChangeListener((GoogleMap.OnCameraChangeListener) this);
         mMap.setBuildingsEnabled(true);
-
     }
 
-    //@Override
+    @Override
     public void onCameraChange(CameraPosition position) {
         // Makes sure the visuals remain when zoom changes.
         for(int i = 0; i < mGeofenceCoordinates.size(); i++) {
