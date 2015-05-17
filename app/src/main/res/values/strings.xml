@@ -15,4 +15,5 @@
     <string name="navigation_drawer_open" />
     <string name="navigation_drawer_close" />
     <string name="title_activity_maps">Map</string>
+    <string name="loginregister">Login / Register</string>
 </resources>

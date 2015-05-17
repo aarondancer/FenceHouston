@@ -24,4 +24,9 @@
         android:layout_height="wrap_content"
         android:text="@string/map" />
 
+    <Button android:id="@+id/loginBtn"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/loginregister" />
+
 </LinearLayout>

@@ -88,6 +88,15 @@ public class MainActivity extends Activity implements LocationListener{
                 startActivity(intent);;
             }
         });
+
+        Button loginBtn = (Button) findViewById(R.id.loginBtn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                //define a new Intent for the second Activity
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);;
+            }
+        });
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     protected void displayNotification() {
