@@ -3,4 +3,5 @@
     <item name="cancel" type="id" />
     <item name="update" type="id" />
     <item name="start" type="id" />
+    <item name="google_map" type="id" />
 </resources>

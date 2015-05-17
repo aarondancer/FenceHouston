@@ -18,11 +18,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.location.Geofence;
+
 public class MainActivity extends Activity implements LocationListener{
     private NotificationManager mNotificationManager;
     private int notificationID = 100;
     private int numMessages = 0;
     private LocationManager locationManager;
+    Location location;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,10 +80,14 @@ public class MainActivity extends Activity implements LocationListener{
             public void onClick(View view) {
                 //define a new Intent for the second Activity
                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                startActivity(intent);;
+                startActivity(intent);
+                ;
             }
         });
+
+
     }
+    
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     protected void displayNotification() {
         Log.i("Start", "notification");
@@ -189,13 +196,16 @@ public class MainActivity extends Activity implements LocationListener{
 
     /************* Called after each 3 sec **********/
     @Override
-    public void onLocationChanged(Location location) {
+    public void onLocationChanged(Location myLocation) {
 
-        String str = "Latitude: "+location.getLatitude()+" Longitude: "+location.getLongitude();
-
+        String str = "Latitude: "+myLocation.getLatitude()+" Longitude: "+myLocation.getLongitude();
+        location = myLocation;
         Toast.makeText(getBaseContext(), str, Toast.LENGTH_LONG).show();
     }
 
+    public Location getLocation(){
+        return location;
+    }
     @Override
     public void onProviderDisabled(String provider) {
 
@@ -217,4 +227,6 @@ public class MainActivity extends Activity implements LocationListener{
         // TODO Auto-generated method stub
 
     }
+
+
 }
