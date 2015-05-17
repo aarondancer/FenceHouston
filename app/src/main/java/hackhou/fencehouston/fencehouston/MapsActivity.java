@@ -115,7 +115,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofences.add(new Geofence.Builder()
                 .setRequestId("Travis Fire")
                         // The coordinates of the center of the geofence and the radius in meters.
-                .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
+                .setCircularRegion(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude, mGeofenceRadius.get(1).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                         // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
                 .setLoiteringDelay(30000)

@@ -11,8 +11,11 @@ import com.google.android.gms.location.GeofencingEvent;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -71,6 +74,7 @@ public class GeofenceIntentService extends IntentService {
     private void sendNotification(Context context, String notificationText,
                                   String notificationTitle) {
 
+        NotificationManager mNotificationManager;
         PowerManager pm = (PowerManager) context
                 .getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = pm.newWakeLock(
@@ -83,12 +87,35 @@ public class GeofenceIntentService extends IntentService {
                 .setContentText(notificationText)
                 .setDefaults(Notification.DEFAULT_ALL).setAutoCancel(false);
 
+        /* Creates an explicit intent for an Activity in your app */
+        Intent resultIntent = new Intent(Intent.ACTION_VIEW);
+        resultIntent.setData(Uri.parse("http://lmgtfy.com/?q=" + notificationText));
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(NotificationView.class);
+
+
+      /* Adds the Intent that starts the Activity to the top of the stack */
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        notificationBuilder.setContentIntent(resultPendingIntent);
+
+        mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notificationBuilder.build());
 
         wakeLock.release();
     }
+
 
     private String getTriggeringGeofences(Intent intent) {
         GeofencingEvent geofenceEvent = GeofencingEvent.fromIntent(intent);
