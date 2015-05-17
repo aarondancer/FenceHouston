@@ -4,4 +4,4 @@
     tools:context="hackhou.fencehouston.fencehouston.MapsActivity"
     android:name="com.google.android.gms.maps.SupportMapFragment"
 
-    />
+    tools:layout="@layout/activity_maps" />

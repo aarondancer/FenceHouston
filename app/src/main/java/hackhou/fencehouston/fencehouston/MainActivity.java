@@ -18,6 +18,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.parse.*;
+
 public class MainActivity extends Activity implements LocationListener{
     private NotificationManager mNotificationManager;
     private int notificationID = 100;
@@ -27,6 +29,11 @@ public class MainActivity extends Activity implements LocationListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Enable Local Datastore.
+        Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this, "pnJAoPzsbulMxEzSwNLzAdIq1OlgH4NHDnNKdAXl", "I17zOttD1hoS5RErQnboUSoXEbwiXiQX2glcMu4K");
 
         /********** get Gps location service LocationManager object ***********/
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
