@@ -111,7 +111,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
                                 | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
+        mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude)));
         mGeofences.add(new Geofence.Builder()
                 .setRequestId("Travis Fire")
                         // The coordinates of the center of the geofence and the radius in meters.
@@ -123,7 +123,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
                                 | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
+        mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude)));
         // Add the geofences to the GeofenceStore object.
         mGeofenceStore = new GeofenceStore(this, mGeofences);
         populatePublicArt();
@@ -181,6 +181,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                     .radius(radius / 1.5)
                                     .fillColor(Color.argb(100, 0, 200, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
@@ -244,6 +245,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                     .radius(radius / 1.5)
                                     .fillColor(Color.argb(100, 200, 200, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
