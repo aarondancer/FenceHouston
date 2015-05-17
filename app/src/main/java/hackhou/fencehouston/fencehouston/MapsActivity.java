@@ -89,30 +89,28 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceRadius = new ArrayList<Integer>();
 
         // Adding geofence coordinates to array.
+        mGeofenceCoordinates.add(new LatLng(29.7520967, -95.3757573));
         mGeofenceCoordinates.add(new LatLng(29.759798, -95.363542));
-//        mGeofenceCoordinates.add(new LatLng(43.042998, -87.909753));
-//        mGeofenceCoordinates.add(new LatLng(43.040732, -87.921364));
-//        mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
-//        mGeofenceCoordinates.add(new LatLng(29.953470, -95.505461));
+
 
         // Adding associated geofence radius' to array.
-//        mGeofenceRadius.add(100);
+        mGeofenceRadius.add(100);
         mGeofenceRadius.add(250);
 
         // Bulding the geofences and adding them to the geofence array.
 
         // Performing Arts Center
-//        mGeofences.add(new Geofence.Builder()
-//                .setRequestId("Houston Technology Center")
-//                        // The coordinates of the center of the geofence and the radius in meters.
-//                .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
-//                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-//                        // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-//                .setLoiteringDelay(30000)
-//                .setTransitionTypes(
-//                        Geofence.GEOFENCE_TRANSITION_ENTER
-//                                | Geofence.GEOFENCE_TRANSITION_DWELL
-//                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+        mGeofences.add(new Geofence.Builder()
+                .setRequestId("Houston Technology Center")
+                        // The coordinates of the center of the geofence and the radius in meters.
+                .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                        // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
+                .setLoiteringDelay(30000)
+                .setTransitionTypes(
+                        Geofence.GEOFENCE_TRANSITION_ENTER
+                                | Geofence.GEOFENCE_TRANSITION_DWELL
+                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
 
         mGeofences.add(new Geofence.Builder()
                 .setRequestId("Travis Fire")
@@ -322,7 +320,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     @Override
     public void onCameraChange(CameraPosition position) {
         // Makes sure the visuals remain when zoom changes.
-        for(int i = 0; i < mGeofenceCoordinates.size(); i++) {
+        mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(0))
+                .radius(mGeofenceRadius.get(0))
+                .fillColor(Color.argb(100, 255, 0, 255))
+                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+        mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(0))
+                .radius(mGeofenceRadius.get(0) / 3)
+                .fillColor(Color.argb(50, 200, 0, 200))
+                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+        
+        for(int i = 1; i < mGeofenceCoordinates.size(); i++) {
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
                     .radius(mGeofenceRadius.get(i))
                     .fillColor(Color.argb(100, 255, 0, 0))
