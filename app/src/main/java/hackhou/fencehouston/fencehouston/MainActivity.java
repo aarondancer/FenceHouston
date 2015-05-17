@@ -2,6 +2,7 @@ package hackhou.fencehouston.fencehouston;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -146,6 +147,9 @@ public class MainActivity extends Activity implements LocationListener{
         mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        // Clears notification on click
+        mBuilder.setAutoCancel(true);
+
       /* notificationID allows you to update the notification later on. */
         mNotificationManager.notify(notificationID, mBuilder.build());
     }
@@ -189,6 +193,9 @@ public class MainActivity extends Activity implements LocationListener{
 
         mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Clears notification on click
+        mBuilder.setAutoCancel(true);
 
       /* Update the existing notification using same notification ID */
         mNotificationManager.notify(notificationID, mBuilder.build());
