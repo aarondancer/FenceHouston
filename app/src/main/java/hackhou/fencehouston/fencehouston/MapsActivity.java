@@ -85,12 +85,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceCoordinates.add(new LatLng(43.042998, -87.909753));
         mGeofenceCoordinates.add(new LatLng(43.040732, -87.921364));
         mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
+        mGeofenceCoordinates.add(new LatLng(29.953470, -95.505461));
 
         // Adding associated geofence radius' to array.
         mGeofenceRadius.add(500);
         mGeofenceRadius.add(50);
         mGeofenceRadius.add(160);
         mGeofenceRadius.add(160);
+        mGeofenceRadius.add(500);
 
         // Bulding the geofences and adding them to the geofence array.
 
@@ -135,6 +137,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                 .setRequestId("Milwaukee Art Museum")
                         // The coordinates of the center of the geofence and the radius in meters.
                 .setCircularRegion(mGeofenceCoordinates.get(3).latitude, mGeofenceCoordinates.get(3).longitude, mGeofenceRadius.get(3).intValue())
+                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                .setTransitionTypes(
+                        Geofence.GEOFENCE_TRANSITION_ENTER
+                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+
+        // G Home
+        mGeofences.add(new Geofence.Builder()
+                .setRequestId("Milwaukee Art Museum")
+                        // The coordinates of the center of the geofence and the radius in meters.
+                .setCircularRegion(mGeofenceCoordinates.get(4).latitude, mGeofenceCoordinates.get(4).longitude, mGeofenceRadius.get(3).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER
