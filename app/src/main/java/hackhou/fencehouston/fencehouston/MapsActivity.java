@@ -81,7 +81,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceRadius = new ArrayList<Integer>();
 
         // Adding geofence coordinates to array.
-        mGeofenceCoordinates.add(new LatLng(43.042861, -87.911559));
+        mGeofenceCoordinates.add(new LatLng(29.752000, -95.375462));
         mGeofenceCoordinates.add(new LatLng(43.042998, -87.909753));
         mGeofenceCoordinates.add(new LatLng(43.040732, -87.921364));
         mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
@@ -198,14 +198,14 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         // Centers the camera over the building and zooms int far enough to
         // show the floor picker.
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
-                43.039634, -87.908395), 14));
+                29.752000, -95.375462), 14));
 
         // Hide labels.
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.setIndoorEnabled(false);
         mMap.setMyLocationEnabled(true);
-
         mMap.setOnCameraChangeListener((GoogleMap.OnCameraChangeListener) this);
+        mMap.setBuildingsEnabled(true);
 
     }
 
@@ -216,6 +216,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
                     .radius(mGeofenceRadius.get(i).intValue())
                     .fillColor(0x40ff0000)
+                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+            mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
+                    .radius(mGeofenceRadius.get(i).intValue() / 2)
+                    .fillColor(0x80AA0000)
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
         }
     }
