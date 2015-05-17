@@ -15,6 +15,9 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.support.v4.app.FragmentManager;
 
@@ -32,6 +35,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -44,7 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraChangeListener {
+public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraChangeListener, AdapterView.OnItemSelectedListener {
 
     /**
      * Google Map object
@@ -76,18 +80,38 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     private GeofenceStore mGeofenceStore;
     ParseObject PublicArt;
     ParseObject ChargingStation;
+    List<Circle> artCircles;
+    List<Circle> chargeCircles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+// Enable Local Datastore.
+        Parse.enableLocalDatastore(this);
 
+        Parse.initialize(this, "pnJAoPzsbulMxEzSwNLzAdIq1OlgH4NHDnNKdAXl", "I17zOttD1hoS5RErQnboUSoXEbwiXiQX2glcMu4K");
         // Initializing variables
         mGeofences = new ArrayList<Geofence>();
         mGeofenceCoordinates = new ArrayList<LatLng>();
         mGeofenceRadius = new ArrayList<Integer>();
 
+        initialFences();
+
+        Spinner spinner = (Spinner) findViewById(R.id.channel_spinner);
+        spinner.setOnItemSelectedListener(this);
+// Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.channels, android.R.layout.simple_spinner_item);
+// Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+        populatePublicArt();
+    }
+
+    private void initialFences(){
         // Adding geofence coordinates to array.
         mGeofenceCoordinates.add(new LatLng(29.7520967, -95.3757573));
         mGeofenceCoordinates.add(new LatLng(29.759798, -95.363542));
@@ -106,7 +130,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                 .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                         // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-                .setLoiteringDelay(30000)
+                .setLoiteringDelay(000)
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
@@ -118,7 +142,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                 .setCircularRegion(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude, mGeofenceRadius.get(1).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                         // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-                .setLoiteringDelay(30000)
+                .setLoiteringDelay(000)
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
@@ -126,8 +150,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
         // Add the geofences to the GeofenceStore object.
         mGeofenceStore = new GeofenceStore(this, mGeofences);
-        populatePublicArt();
-        populateChargingStations();
     }
 
     private void populatePublicArt(){
@@ -147,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
     private void getPublicArtPieces(){
         final List<String> ids = PublicArt.getList("Fences");
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 35; i++) {
             final int j = i;
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
             query.getInBackground(ids.get(i), new GetCallback<ParseObject>() {
@@ -173,14 +195,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                                     | Geofence.GEOFENCE_TRANSITION_EXIT).build());
                             mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
 
-                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                            Circle c1 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
                                     .radius(radius)
                                     .fillColor(Color.argb(100, 0, 255, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                            Circle c2 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
                                     .radius(radius / 1.5)
                                     .fillColor(Color.argb(100, 0, 200, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+//                            artCircles.add(c1);
+//                            artCircles.add(c2);
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
@@ -210,7 +234,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
     private void getChargingStations(){
         final List<String> ids = ChargingStation.getList("Fences");
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < ids.size(); i++) {
             final int j = i;
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
             query.getInBackground(ids.get(i), new GetCallback<ParseObject>() {
@@ -236,14 +260,17 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                                     | Geofence.GEOFENCE_TRANSITION_EXIT).build());
                             mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
 
-                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius)
+                            Circle c1 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius * 100)
                                     .fillColor(Color.argb(100, 255, 255, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius / 1.5)
+                            Circle c2 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius / 1.5 * 100)
                                     .fillColor(Color.argb(100, 200, 200, 0))
                                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+
+//                            chargeCircles.add(c1);
+//                            chargeCircles.add(c2);
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
@@ -339,6 +366,28 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                     .fillColor(Color.argb(50, 200, 0, 0))
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        Log.d("Was it called?", String.valueOf(pos));
+         switch (pos) {
+             case 0:
+                 mMap.clear();
+                 initialFences();
+                 populatePublicArt();
+                 break;
+             case 1:
+                 mMap.clear();
+                 initialFences();
+                 populateChargingStations();
+                 break;
+         }
+    }
+
+    public void onNothingSelected(AdapterView<?> parent) {
+        // Another interface callback
     }
 }
 

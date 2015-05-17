@@ -16,25 +16,14 @@
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:orientation="horizontal"
-    android:background="#333"
+    android:background="#dd3"
     android:padding="4dp" >
 
-        <RadioButton
-            android:id="@+id/radioPopular"
-            android:layout_width="0dp"
+        <Spinner
+            android:id="@+id/channel_spinner"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="Meh"
-            android:gravity="center_horizontal|center_vertical"
-            android:layout_weight="1"
-             />
-
-        <RadioButton
-            android:id="@+id/radioAZ"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal|center_vertical"
-            android:text="Meh2"
-            android:layout_weight="1"
-             />
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"/>
     </RadioGroup>
 </FrameLayout>
