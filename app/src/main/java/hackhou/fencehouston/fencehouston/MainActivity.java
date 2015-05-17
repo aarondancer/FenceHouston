@@ -2,6 +2,7 @@ package hackhou.fencehouston.fencehouston;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
+import com.parse.*;
 
 public class MainActivity extends Activity implements LocationListener{
     private NotificationManager mNotificationManager;
@@ -26,10 +28,16 @@ public class MainActivity extends Activity implements LocationListener{
     private int numMessages = 0;
     private LocationManager locationManager;
     Location location;
+    ParseUser currentUser;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Enable Local Datastore.
+        Parse.enableLocalDatastore(this);
+
+        Parse.initialize(this, "pnJAoPzsbulMxEzSwNLzAdIq1OlgH4NHDnNKdAXl", "I17zOttD1hoS5RErQnboUSoXEbwiXiQX2glcMu4K");
 
         /********** get Gps location service LocationManager object ***********/
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -86,6 +94,32 @@ public class MainActivity extends Activity implements LocationListener{
         });
 
 
+        final Button loginBtn = (Button) findViewById(R.id.loginBtn);
+        loginBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                //define a new Intent for the second Activity
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);;
+            }
+        });
+        final Button logoutBtn = (Button) findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ParseUser.logOut();
+                currentUser = ParseUser.getCurrentUser(); // this will now be null
+                loginBtn.setVisibility(View.VISIBLE);
+                view.setVisibility(View.GONE);
+            }
+        });
+        currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            loginBtn.setVisibility(View.GONE);
+            logoutBtn.setVisibility(View.VISIBLE);
+            logoutBtn.setText("Logout of " + currentUser.getUsername());
+        } else {
+//            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+//            startActivity(intent);;
+        }
     }
     
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
@@ -146,6 +180,9 @@ public class MainActivity extends Activity implements LocationListener{
         mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+        // Clears notification on click
+        mBuilder.setAutoCancel(true);
+
       /* notificationID allows you to update the notification later on. */
         mNotificationManager.notify(notificationID, mBuilder.build());
     }
@@ -189,6 +226,9 @@ public class MainActivity extends Activity implements LocationListener{
 
         mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Clears notification on click
+        mBuilder.setAutoCancel(true);
 
       /* Update the existing notification using same notification ID */
         mNotificationManager.notify(notificationID, mBuilder.build());
