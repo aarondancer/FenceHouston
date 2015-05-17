@@ -26,6 +26,7 @@ public class MainActivity extends Activity implements LocationListener{
     private int notificationID = 100;
     private int numMessages = 0;
     private LocationManager locationManager;
+    ParseUser currentUser;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +90,7 @@ public class MainActivity extends Activity implements LocationListener{
             }
         });
 
-        Button loginBtn = (Button) findViewById(R.id.loginBtn);
+        final Button loginBtn = (Button) findViewById(R.id.loginBtn);
         loginBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 //define a new Intent for the second Activity
@@ -97,6 +98,24 @@ public class MainActivity extends Activity implements LocationListener{
                 startActivity(intent);;
             }
         });
+        final Button logoutBtn = (Button) findViewById(R.id.logoutBtn);
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                ParseUser.logOut();
+                currentUser = ParseUser.getCurrentUser(); // this will now be null
+                loginBtn.setVisibility(View.VISIBLE);
+                view.setVisibility(View.GONE);
+            }
+        });
+        currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+            loginBtn.setVisibility(View.GONE);
+            logoutBtn.setVisibility(View.VISIBLE);
+            logoutBtn.setText("Logout of " + currentUser.getUsername());
+        } else {
+//            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+//            startActivity(intent);;
+        }
     }
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     protected void displayNotification() {
