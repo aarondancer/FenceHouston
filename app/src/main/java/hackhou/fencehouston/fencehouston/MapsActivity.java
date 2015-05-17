@@ -87,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
 
         // Adding associated geofence radius' to array.
-        mGeofenceRadius.add(100);
+        mGeofenceRadius.add(500);
         mGeofenceRadius.add(50);
         mGeofenceRadius.add(160);
         mGeofenceRadius.add(160);
@@ -177,15 +177,13 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
             mMap = ((SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.map)).getMap();
             //mMap =  ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-          //  mMap = ((SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.google_map)).getMap();
+            //  mMap = ((SupportMapFragment) this.getChildFragmentManager().findFragmentById(R.id.google_map)).getMap();
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
             }
         }
     }
-
-
 
     /**
      * This is where we can add markers or lines, add listeners or move the
@@ -214,11 +212,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         // Makes sure the visuals remain when zoom changes.
         for(int i = 0; i < mGeofenceCoordinates.size(); i++) {
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
-                    .radius(mGeofenceRadius.get(i).intValue())
+                    .radius(mGeofenceRadius.get(i))
                     .fillColor(0x40ff0000)
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
-                    .radius(mGeofenceRadius.get(i).intValue() / 2)
+                    .radius(mGeofenceRadius.get(i) / 2)
                     .fillColor(0x80AA0000)
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
         }

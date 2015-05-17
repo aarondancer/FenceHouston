@@ -49,6 +49,7 @@ public class GeofenceIntentService extends IntentService {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
                     notificationTitle = "Geofence Entered";
                     Log.v(TAG, "Geofence Entered");
+                    sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
                     break;
                 case Geofence.GEOFENCE_TRANSITION_DWELL:
                     notificationTitle = "Geofence Dwell";
@@ -57,12 +58,13 @@ public class GeofenceIntentService extends IntentService {
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
                     notificationTitle = "Geofence Exit";
                     Log.v(TAG, "Geofence Exited");
+                    sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
                     break;
                 default:
                     notificationTitle = "Geofence Unknown";
             }
 
-            sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
+//            sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
         }
     }
 
