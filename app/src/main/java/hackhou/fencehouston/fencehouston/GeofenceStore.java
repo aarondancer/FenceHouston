@@ -111,14 +111,21 @@ public class GeofenceStore implements ConnectionCallbacks,
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.v(TAG, "Connection failed.");
     }
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofences);
+        return builder.build();
+    }
 
     @Override
     public void onConnected(Bundle connectionHint) {
         // We're connected, now we need to create a GeofencingRequest with
         // the geofences we have stored.
+
         mGeofencingRequest = new GeofencingRequest.Builder().addGeofences(
                 mGeofences).build();
-
+        //mGeofencingRequest = new getGeofencingRequest().Builder();
         mPendingIntent = createRequestPendingIntent();
 
         // This is for debugging only and does not affect
@@ -128,7 +135,7 @@ public class GeofenceStore implements ConnectionCallbacks,
 
         // Submitting the request to monitor geofences.
         PendingResult<Status> pendingResult = LocationServices.GeofencingApi
-                .addGeofences(mGoogleApiClient, mGeofencingRequest,
+                .addGeofences(mGoogleApiClient, getGeofencingRequest(),
                         mPendingIntent);
 
         // Set the result callbacks listener to this class.

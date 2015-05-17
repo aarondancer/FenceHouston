@@ -46,7 +46,7 @@ public class GeofenceIntentService extends IntentService {
         Log.v(TAG, "onHandleIntent");
         if(!geofencingEvent.hasError()) {
             int transition = geofencingEvent.getGeofenceTransition();
-            String notificationTitle;
+            String notificationTitle = " ";
 
             switch(transition) {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
@@ -67,7 +67,7 @@ public class GeofenceIntentService extends IntentService {
                     notificationTitle = "Geofence Unknown";
             }
 
-//            sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
+            //sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
         }
     }
 
