@@ -106,7 +106,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
         // Performing Arts Center
         mGeofences.add(new Geofence.Builder()
-                .setRequestId("Performing Arts Center")
+                .setRequestId("Houston Technology Center")
                         // The coordinates of the center of the geofence and the radius in meters.
                 .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
@@ -199,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                 latitude = addresses.get(0).getLatitude();
                                 float radius = 25;
                                 mGeofences.add(new Geofence.Builder()
-                                        .setRequestId(object.getString("name"))
+                                        .setRequestId(object.getString("title"))
                                                 // The coordinates of the center of the geofence and the radius in meters.
                                         .setCircularRegion(latitude, longitude, radius)
                                         .setExpirationDuration(Geofence.NEVER_EXPIRE)
