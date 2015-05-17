@@ -75,7 +75,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
      */
     private GeofenceStore mGeofenceStore;
     ParseObject PublicArt;
-    ArrayList<ParseObject> PublicArtPieces = new ArrayList<ParseObject>();
+    ParseObject ChargingStation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,24 +89,33 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         mGeofenceRadius = new ArrayList<Integer>();
 
         // Adding geofence coordinates to array.
-        mGeofenceCoordinates.add(new LatLng(29.752000, -95.375462));
-        mGeofenceCoordinates.add(new LatLng(43.042998, -87.909753));
-        mGeofenceCoordinates.add(new LatLng(43.040732, -87.921364));
-        mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
-        mGeofenceCoordinates.add(new LatLng(29.953470, -95.505461));
+        mGeofenceCoordinates.add(new LatLng(29.759798, -95.363542));
+//        mGeofenceCoordinates.add(new LatLng(43.042998, -87.909753));
+//        mGeofenceCoordinates.add(new LatLng(43.040732, -87.921364));
+//        mGeofenceCoordinates.add(new LatLng(43.039912, -87.897038));
+//        mGeofenceCoordinates.add(new LatLng(29.953470, -95.505461));
 
         // Adding associated geofence radius' to array.
-        mGeofenceRadius.add(100);
-        mGeofenceRadius.add(50);
-        mGeofenceRadius.add(160);
-        mGeofenceRadius.add(160);
-        mGeofenceRadius.add(500);
+//        mGeofenceRadius.add(100);
+        mGeofenceRadius.add(250);
 
         // Bulding the geofences and adding them to the geofence array.
 
         // Performing Arts Center
+//        mGeofences.add(new Geofence.Builder()
+//                .setRequestId("Houston Technology Center")
+//                        // The coordinates of the center of the geofence and the radius in meters.
+//                .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
+//                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+//                        // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
+//                .setLoiteringDelay(30000)
+//                .setTransitionTypes(
+//                        Geofence.GEOFENCE_TRANSITION_ENTER
+//                                | Geofence.GEOFENCE_TRANSITION_DWELL
+//                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+
         mGeofences.add(new Geofence.Builder()
-                .setRequestId("Houston Technology Center")
+                .setRequestId("Travis Fire")
                         // The coordinates of the center of the geofence and the radius in meters.
                 .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
@@ -117,52 +126,10 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
                                 | Geofence.GEOFENCE_TRANSITION_EXIT).build());
 
-        // Starbucks
-        mGeofences.add(new Geofence.Builder()
-                .setRequestId("Starbucks")
-                        // The coordinates of the center of the geofence and the radius in meters.
-                .setCircularRegion(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude, mGeofenceRadius.get(1).intValue())
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                        // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-                .setLoiteringDelay(30000)
-                .setTransitionTypes(
-                        Geofence.GEOFENCE_TRANSITION_ENTER
-                                | Geofence.GEOFENCE_TRANSITION_DWELL
-                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
-        // Milwaukee Public Museum
-        mGeofences.add(new Geofence.Builder()
-                .setRequestId("Milwaukee Public Museum")
-                        // The coordinates of the center of the geofence and the radius in meters.
-                .setCircularRegion(mGeofenceCoordinates.get(2).latitude, mGeofenceCoordinates.get(2).longitude, mGeofenceRadius.get(2).intValue())
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(
-                        Geofence.GEOFENCE_TRANSITION_ENTER
-                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
-        // Milwaukee Art Museum
-        mGeofences.add(new Geofence.Builder()
-                .setRequestId("Milwaukee Art Museum")
-                        // The coordinates of the center of the geofence and the radius in meters.
-                .setCircularRegion(mGeofenceCoordinates.get(3).latitude, mGeofenceCoordinates.get(3).longitude, mGeofenceRadius.get(3).intValue())
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(
-                        Geofence.GEOFENCE_TRANSITION_ENTER
-                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
-        // G Home
-        mGeofences.add(new Geofence.Builder()
-                .setRequestId("Milwaukee Art Museum")
-                        // The coordinates of the center of the geofence and the radius in meters.
-                .setCircularRegion(mGeofenceCoordinates.get(4).latitude, mGeofenceCoordinates.get(4).longitude, mGeofenceRadius.get(3).intValue())
-                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                .setTransitionTypes(
-                        Geofence.GEOFENCE_TRANSITION_ENTER
-                                | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-
         // Add the geofences to the GeofenceStore object.
         mGeofenceStore = new GeofenceStore(this, mGeofences);
         populatePublicArt();
+        populateChargingStations();
     }
 
     private void populatePublicArt(){
@@ -182,6 +149,69 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
     private void getPublicArtPieces(){
         final List<String> ids = PublicArt.getList("Fences");
+        for (int i = 0; i < 20; i++) {
+            final int j = i;
+            ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
+            query.getInBackground(ids.get(i), new GetCallback<ParseObject>() {
+                public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    Geocoder coder = new Geocoder(MapsActivity.this);
+                    double longitude;
+                    double latitude;
+//                        Log.d("Now attempting to place", object.getObjectId());
+                    try {
+                        ArrayList<Address> addresses = (ArrayList<Address>) coder.getFromLocationName(object.getString("address"), 1);
+                        if (addresses.size() > 0) {
+                            longitude = addresses.get(0).getLongitude();
+                            latitude = addresses.get(0).getLatitude();
+                            float radius = 25;
+                            mGeofences.add(new Geofence.Builder()
+                                    .setRequestId(object.getString("title"))
+                                            // The coordinates of the center of the geofence and the radius in meters.
+                                    .setCircularRegion(latitude, longitude, radius)
+                                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                    .setTransitionTypes(
+                                            Geofence.GEOFENCE_TRANSITION_ENTER
+                                                    | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+                            mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
+
+                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius)
+                                    .fillColor(Color.argb(100, 0, 255, 0))
+                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius / 1.5)
+                                    .fillColor(Color.argb(100, 0, 200, 0))
+                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                        }
+                    } catch (IOException ee) {
+//                            ee.printStackTrace();
+
+                    }
+
+                }
+                }
+            });
+        }
+    }
+
+    private void populateChargingStations(){
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Channel");
+        query.whereEqualTo("name", "Charging Stations");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> resultList, ParseException e) {
+                if (e == null) {
+                    ChargingStation = resultList.get(0);
+                    getChargingStations();
+                } else {
+                    Log.d("score", "Error: " + e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void getChargingStations(){
+        final List<String> ids = ChargingStation.getList("Fences");
         for (int i = 0; i < 50; i++) {
             final int j = i;
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
@@ -210,11 +240,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
                                 mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
                                         .radius(radius)
-                                        .fillColor(0x40ff0000)
+                                        .fillColor(Color.argb(100, 255, 255, 0))
                                         .strokeColor(Color.TRANSPARENT).strokeWidth(2));
                                 mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
                                         .radius(radius / 1.5)
-                                        .fillColor(0x80AA0000)
+                                        .fillColor(Color.argb(100, 200, 200, 0))
                                         .strokeColor(Color.TRANSPARENT).strokeWidth(2));
                             }
                         } catch (IOException ee) {
@@ -227,7 +257,6 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
             });
         }
     }
-
 
     @Override
     protected void onStart() {
@@ -296,11 +325,11 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         for(int i = 0; i < mGeofenceCoordinates.size(); i++) {
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
                     .radius(mGeofenceRadius.get(i))
-                    .fillColor(0x40ff0000)
+                    .fillColor(Color.argb(100, 255, 0, 0))
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
             mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
-                    .radius(mGeofenceRadius.get(i) / 2)
-                    .fillColor(0x80AA0000)
+                    .radius(mGeofenceRadius.get(i) / 3)
+                    .fillColor(Color.argb(50, 200, 0, 0))
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
         }
     }

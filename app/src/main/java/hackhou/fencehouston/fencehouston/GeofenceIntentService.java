@@ -47,8 +47,8 @@ public class GeofenceIntentService extends IntentService {
 
             switch(transition) {
                 case Geofence.GEOFENCE_TRANSITION_ENTER:
-                    notificationTitle = "Geofence Entered";
-                    Log.v(TAG, "Geofence Entered");
+                    notificationTitle = "Tap For More Info About:";
+//                    Log.v(TAG, "Geofence Entered");
                     sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
                     break;
                 case Geofence.GEOFENCE_TRANSITION_DWELL:
@@ -56,9 +56,9 @@ public class GeofenceIntentService extends IntentService {
                     Log.v(TAG, "Dwelling in Geofence");
                     break;
                 case Geofence.GEOFENCE_TRANSITION_EXIT:
-                    notificationTitle = "Geofence Exit";
-                    Log.v(TAG, "Geofence Exited");
-                    sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
+//                    notificationTitle = "Geofence Exit";
+//                    Log.v(TAG, "Geofence Exited");
+//                    sendNotification(this, getTriggeringGeofences(intent), notificationTitle);
                     break;
                 default:
                     notificationTitle = "Geofence Unknown";
