@@ -1,5 +1,6 @@
 package hackhou.fencehouston.fencehouston;
 
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -21,6 +22,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -77,6 +81,9 @@ public class NavigationDrawerFragment extends Fragment {
 
         // Select either the default item (0) or the last selected item.
         selectItem(mCurrentSelectedPosition);
+        if (savedInstanceState == null) {
+            selectItem(0);
+        }
     }
 
     @Override
@@ -90,7 +97,7 @@ public class NavigationDrawerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mDrawerListView = (ListView) inflater.inflate(
-                R.layout.fragment_navigation_drawer, container, false);
+                R.layout.fragment_navigation_main_drawer, container, false);
         mDrawerListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -199,6 +206,56 @@ public class NavigationDrawerFragment extends Fragment {
         if (mCallbacks != null) {
             mCallbacks.onNavigationDrawerItemSelected(position);
         }
+        FragmentManager fragmentManager = getFragmentManager();
+        Fragment f;
+        switch (position) {
+
+            case 0:
+                f = new HMapFragment();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, f)
+                        .commit();
+                break;
+            case 1:
+//                f = new fragmentManager.findFragmentById(R.);
+                Fragment c = new ChannelFragment();
+                fragmentManager.beginTransaction()
+                        .replace(R.id.container, c)
+                        .commit();
+                break;
+        }
+//        switch (position) {
+//
+//            case 0:
+//                FragmentManager fragmentManager = getFragmentManager();
+//                Fragment f = fragmentManager.findFragmentById(R.id.map);
+//                fragmentManager.beginTransaction()
+//                        .replace(R.id.container, f)
+//                        .commit();
+//                break;
+//
+////            case 1:
+////
+////                fragmentManager.beginTransaction()
+////                        .replace(R.id.content_frame, new DbListViewFragment())
+////                        .commit();
+////                break;
+////
+////            case 2:
+////
+////                fragmentManager.beginTransaction()
+////                        .replace(R.id.content_frame, new StatisticsFragment())
+////                        .commit();
+////                break;
+////
+////            case 3:
+////
+////                fragmentManager.beginTransaction()
+////                        .replace(R.id.content_frame, new CalculatorFragment(), "calculator")
+////                        .commit();
+////                break;
+//
+//        }
     }
 
     @Override
