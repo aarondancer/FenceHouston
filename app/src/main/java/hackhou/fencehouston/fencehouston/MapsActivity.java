@@ -200,12 +200,12 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         query.whereEqualTo("name", "Charging Stations");
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> resultList, ParseException e) {
-                if (e == null) {
-                    ChargingStation = resultList.get(0);
-                    getChargingStations();
-                } else {
-                    Log.d("score", "Error: " + e.getMessage());
-                }
+            if (e == null) {
+                ChargingStation = resultList.get(0);
+                getChargingStations();
+            } else {
+                Log.d("score", "Error: " + e.getMessage());
+            }
             }
         });
     }
@@ -217,42 +217,42 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Fence");
             query.getInBackground(ids.get(i), new GetCallback<ParseObject>() {
                 public void done(ParseObject object, ParseException e) {
-                    if (e == null) {
-                        Geocoder coder = new Geocoder(MapsActivity.this);
-                        double longitude;
-                        double latitude;
+                if (e == null) {
+                    Geocoder coder = new Geocoder(MapsActivity.this);
+                    double longitude;
+                    double latitude;
 //                        Log.d("Now attempting to place", object.getObjectId());
-                        try {
-                            ArrayList<Address> addresses = (ArrayList<Address>) coder.getFromLocationName(object.getString("address"), 1);
-                            if (addresses.size() > 0) {
-                                longitude = addresses.get(0).getLongitude();
-                                latitude = addresses.get(0).getLatitude();
-                                float radius = 25;
-                                mGeofences.add(new Geofence.Builder()
-                                        .setRequestId(object.getString("title"))
-                                                // The coordinates of the center of the geofence and the radius in meters.
-                                        .setCircularRegion(latitude, longitude, radius)
-                                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                                        .setTransitionTypes(
-                                                Geofence.GEOFENCE_TRANSITION_ENTER
-                                                        | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-                                mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
+                    try {
+                        ArrayList<Address> addresses = (ArrayList<Address>) coder.getFromLocationName(object.getString("address"), 1);
+                        if (addresses.size() > 0) {
+                            longitude = addresses.get(0).getLongitude();
+                            latitude = addresses.get(0).getLatitude();
+                            float radius = 25;
+                            mGeofences.add(new Geofence.Builder()
+                                    .setRequestId(object.getString("title"))
+                                            // The coordinates of the center of the geofence and the radius in meters.
+                                    .setCircularRegion(latitude, longitude, radius)
+                                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                    .setTransitionTypes(
+                                            Geofence.GEOFENCE_TRANSITION_ENTER
+                                                    | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+                            mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
 
-                                mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                        .radius(radius)
-                                        .fillColor(Color.argb(100, 255, 255, 0))
-                                        .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                                mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                        .radius(radius / 1.5)
-                                        .fillColor(Color.argb(100, 200, 200, 0))
-                                        .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                            }
-                        } catch (IOException ee) {
+                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius)
+                                    .fillColor(Color.argb(100, 255, 255, 0))
+                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                            mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
+                                    .radius(radius / 1.5)
+                                    .fillColor(Color.argb(100, 200, 200, 0))
+                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+                        }
+                    } catch (IOException ee) {
 //                            ee.printStackTrace();
 
-                        }
-
                     }
+
+                }
                 }
             });
         }
