@@ -33,14 +33,13 @@ public class MainActivity extends Activity implements LocationListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
 
         Parse.initialize(this, "pnJAoPzsbulMxEzSwNLzAdIq1OlgH4NHDnNKdAXl", "I17zOttD1hoS5RErQnboUSoXEbwiXiQX2glcMu4K");
 
+
         /********** get Gps location service LocationManager object ***********/
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
                 /* CAL METHOD requestLocationUpdates */
 
@@ -54,10 +53,10 @@ public class MainActivity extends Activity implements LocationListener{
         //   Fourth(listener)   :  a {#link LocationListener} whose onLocationChanged(Location)
         //                         method will be called for each location update
 
-
-        locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER,
+        //to conantly get user location
+       /* locationManager.requestLocationUpdates( LocationManager.GPS_PROVIDER,
                 3000,   // 3 sec
-                10, this);
+                10, this);*/
 
         /********* After registration onLocationChanged method  ********/
         /********* called periodically after each 3 sec ***********/
@@ -145,11 +144,7 @@ public class MainActivity extends Activity implements LocationListener{
 
         String[] events = new String[6];
         events[0] = new String("This is first line....");
-        events[1] = new String("This is second line...");
-        events[2] = new String("This is third line...");
-        events[3] = new String("This is 4th line...");
-        events[4] = new String("This is 5th line...");
-        events[5] = new String("This is 6th line...");
+
 
         // Sets a title for the Inbox style big view
         inboxStyle.setBigContentTitle("Big Title Details:");

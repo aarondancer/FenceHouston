@@ -8,6 +8,7 @@ import java.util.List;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
+import android.annotation.TargetApi;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,6 +17,7 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
@@ -71,6 +73,7 @@ public class GeofenceIntentService extends IntentService {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void sendNotification(Context context, String notificationText,
                                   String notificationTitle) {
 
@@ -89,7 +92,7 @@ public class GeofenceIntentService extends IntentService {
 
         /* Creates an explicit intent for an Activity in your app */
         Intent resultIntent = new Intent(Intent.ACTION_VIEW);
-        resultIntent.setData(Uri.parse("http://lmgtfy.com/?q=" + notificationText));
+        resultIntent.setData(Uri.parse("https://www.google.com/search?q=" + notificationText));
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(NotificationView.class);

@@ -14,9 +14,11 @@ import android.provider.SyncStateContract;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.support.v4.app.FragmentManager;
@@ -34,10 +36,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
 import com.parse.*;
@@ -48,7 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraChangeListener, AdapterView.OnItemSelectedListener {
+public class MapsActivity extends FragmentActivity implements GoogleMap.OnCameraChangeListener, AdapterView.OnItemSelectedListener, GoogleMap.OnMapLongClickListener,GoogleMap.OnMarkerClickListener {
 
     /**
      * Google Map object
@@ -82,13 +86,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     ParseObject ChargingStation;
     List<Circle> artCircles;
     List<Circle> chargeCircles;
-
+    List<Circle> allCircles = new ArrayList<Circle>();
+    List<Marker> customMarkers = new ArrayList<Marker>();
+    int customMarkerCount = 0;
+    boolean removeMarkers = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
-// Enable Local Datastore.
+        // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
 
         Parse.initialize(this, "pnJAoPzsbulMxEzSwNLzAdIq1OlgH4NHDnNKdAXl", "I17zOttD1hoS5RErQnboUSoXEbwiXiQX2glcMu4K");
@@ -101,55 +108,78 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
         Spinner spinner = (Spinner) findViewById(R.id.channel_spinner);
         spinner.setOnItemSelectedListener(this);
-// Create an ArrayAdapter using the string array and a default spinner layout
+
+        final Button removeMarkerBtn = (Button) findViewById(R.id.removeMarker);
+        removeMarkerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!removeMarkers)
+                    removeMarkerBtn.setBackgroundColor(Color.GREEN);
+                else
+                    removeMarkerBtn.setBackgroundColor(Color.RED);
+
+                removeMarkers = !removeMarkers;
+                Toast.makeText(getApplicationContext(), "Toggled Removal of Markers: " + removeMarkers, Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        mMap.setOnMapLongClickListener(this);
+        mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener) this);
+        // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.channels, android.R.layout.simple_spinner_item);
-// Specify the layout to use when the list of choices appears
+        // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-// Apply the adapter to the spinner
+        // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
         populatePublicArt();
     }
 
     private void initialFences(){
+
         // Adding geofence coordinates to array.
         mGeofenceCoordinates.add(new LatLng(29.7520967, -95.3757573));
-        mGeofenceCoordinates.add(new LatLng(29.759798, -95.363542));
-
-
         // Adding associated geofence radius' to array.
         mGeofenceRadius.add(100);
-        mGeofenceRadius.add(250);
 
         // Bulding the geofences and adding them to the geofence array.
 
-        // Performing Arts Center
+        // Houston Technology Center
         mGeofences.add(new Geofence.Builder()
                 .setRequestId("Houston Technology Center")
                         // The coordinates of the center of the geofence and the radius in meters.
                 .setCircularRegion(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude, mGeofenceRadius.get(0).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                         // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-                .setLoiteringDelay(000)
+                .setLoiteringDelay(30000)
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
                                 | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-        mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude)));
+        customMarkers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(0).latitude, mGeofenceCoordinates.get(0).longitude))));
+        addVisualGeofence();
+
+        mGeofenceCoordinates.add(new LatLng(29.953475, -95.505225));
+        mGeofenceRadius.add(1000);
+        //Travis fire
         mGeofences.add(new Geofence.Builder()
-                .setRequestId("Travis Fire")
+                .setRequestId("George's House")
                         // The coordinates of the center of the geofence and the radius in meters.
                 .setCircularRegion(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude, mGeofenceRadius.get(1).intValue())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                         // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
-                .setLoiteringDelay(000)
+                .setLoiteringDelay(30000)
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER
                                 | Geofence.GEOFENCE_TRANSITION_DWELL
                                 | Geofence.GEOFENCE_TRANSITION_EXIT).build());
-        mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude)));
+        customMarkers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(mGeofenceCoordinates.get(1).latitude, mGeofenceCoordinates.get(1).longitude))));
+        addVisualGeofence();
         // Add the geofences to the GeofenceStore object.
         mGeofenceStore = new GeofenceStore(this, mGeofences);
+
     }
 
     private void populatePublicArt(){
@@ -184,27 +214,20 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                         if (addresses.size() > 0) {
                             longitude = addresses.get(0).getLongitude();
                             latitude = addresses.get(0).getLatitude();
-                            float radius = 25;
+
+                            mGeofenceRadius.add(100);
                             mGeofences.add(new Geofence.Builder()
                                     .setRequestId(object.getString("title"))
                                             // The coordinates of the center of the geofence and the radius in meters.
-                                    .setCircularRegion(latitude, longitude, radius)
-                                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                                    .setTransitionTypes(
-                                            Geofence.GEOFENCE_TRANSITION_ENTER
-                                                    | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+                                    .setCircularRegion(latitude, longitude, mGeofenceRadius.get(mGeofenceRadius.size()-1))
+                                            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                            .setTransitionTypes(
+                                                    Geofence.GEOFENCE_TRANSITION_ENTER
+                                                            | Geofence.GEOFENCE_TRANSITION_EXIT).build());
                             mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
 
-                            Circle c1 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius)
-                                    .fillColor(Color.argb(100, 0, 255, 0))
-                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                            Circle c2 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius / 1.5)
-                                    .fillColor(Color.argb(100, 0, 200, 0))
-                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+                            addVisualGeofence();
+                            customMarkers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))));
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
@@ -249,27 +272,19 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                         if (addresses.size() > 0) {
                             longitude = addresses.get(0).getLongitude();
                             latitude = addresses.get(0).getLatitude();
-                            float radius = 25;
+                            mGeofenceRadius.add(100);
                             mGeofences.add(new Geofence.Builder()
                                     .setRequestId(object.getString("title"))
                                             // The coordinates of the center of the geofence and the radius in meters.
-                                    .setCircularRegion(latitude, longitude, radius)
+                                    .setCircularRegion(latitude, longitude, mGeofenceRadius.get(mGeofenceRadius.size()-1))
                                     .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                     .setTransitionTypes(
                                             Geofence.GEOFENCE_TRANSITION_ENTER
                                                     | Geofence.GEOFENCE_TRANSITION_EXIT).build());
                             mGeofenceStore = new GeofenceStore(MapsActivity.this, mGeofences);
 
-                            Circle c1 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius * 100)
-                                    .fillColor(Color.argb(100, 255, 255, 0))
-                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-                            Circle c2 = mMap.addCircle(new CircleOptions().center(new LatLng(latitude, longitude))
-                                    .radius(radius / 1.5 * 100)
-                                    .fillColor(Color.argb(100, 200, 200, 0))
-                                    .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-
-                            mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)));
+                            addVisualGeofence();
+                            customMarkers.add(mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude))));
                         }
                     } catch (IOException ee) {
 //                            ee.printStackTrace();
@@ -346,24 +361,16 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
     @Override
     public void onCameraChange(CameraPosition position) {
         // Makes sure the visuals remain when zoom changes.
-        mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(0))
-                .radius(mGeofenceRadius.get(0))
-                .fillColor(Color.argb(100, 255, 0, 255))
-                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-        mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(0))
-                .radius(mGeofenceRadius.get(0) / 3)
-                .fillColor(Color.argb(50, 200, 0, 200))
-                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-        
-        for(int i = 1; i < mGeofenceCoordinates.size(); i++) {
-            mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
+        for(int i = 0; i < mGeofenceCoordinates.size()-1; i++) {
+           Circle c1 = mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
                     .radius(mGeofenceRadius.get(i))
                     .fillColor(Color.argb(100, 255, 0, 0))
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
-            mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
+           Circle c2 = mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(i))
                     .radius(mGeofenceRadius.get(i) / 3)
                     .fillColor(Color.argb(50, 200, 0, 0))
                     .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+
         }
     }
 
@@ -387,6 +394,123 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
 
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
+    }
+
+
+    @Override
+    public void onMapLongClick(LatLng point) {
+
+        boolean safeToAdd = true;
+       // for(int i = 0; i < mGeofenceCoordinates.size()-1; i++){
+            //look through all coordinates, if it doesn't already exist add it, if it does exist remove it
+            if(!removeMarkers){
+                customMarkerCount++;
+
+                customMarkers.add(mMap.addMarker(new MarkerOptions()
+                        .position(point)
+                        .title("You are here")
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))));
+
+                //get the last added element to work with
+                Marker currentMarker = customMarkers.get(customMarkers.size() - 1);
+                mGeofenceCoordinates.add(currentMarker.getPosition());
+                mGeofenceRadius.add(250);
+
+                mGeofences.add(new Geofence.Builder()
+                        .setRequestId("CustomGeoFence#"+customMarkerCount)
+                                // The coordinates of the center of the geofence and the radius in meters.
+                        .setCircularRegion(currentMarker.getPosition().latitude, currentMarker.getPosition().longitude, 500)
+                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                // Required when we use the transition type of GEOFENCE_TRANSITION_DWELL
+                        .setLoiteringDelay(30000)
+                        .setTransitionTypes(
+                                Geofence.GEOFENCE_TRANSITION_ENTER
+                                        | Geofence.GEOFENCE_TRANSITION_DWELL
+                                        | Geofence.GEOFENCE_TRANSITION_EXIT).build());
+                mGeofenceStore = new GeofenceStore(this, mGeofences);
+
+                //Draw circles
+                addVisualGeofence();
+            }
+           /* else{
+                //marker does exist remove it
+                for(int j = 0; j < customMarkers.size()-1; j++){
+                    //check if clicked position is close enough to a marker to remove
+                    if((Math.abs(customMarkers.get(j).getPosition().latitude - point.latitude) < 0.05 && Math.abs(customMarkers.get(j).getPosition().longitude - point.longitude) < 0.05)) {
+
+                        Toast.makeText(this, "Marker Removed", Toast.LENGTH_SHORT).show(); //display a brief message to show the "Longpress" for removal
+                        Log.w("Click", "testLong");
+                        customMarkerCount--;
+                        customMarkers.get(j).remove();//remove from map
+                        customMarkers.remove(j);//remove from list
+                        for(int i = 0; i < mGeofenceCoordinates.size()-1; i++){
+                            if((Math.abs(mGeofenceCoordinates.get(i).latitude - point.latitude) < 0.05 && Math.abs(mGeofenceCoordinates.get(i).longitude - point.longitude) < 0.05)){
+                                mGeofences.remove(i);
+                                mGeofenceCoordinates.remove(i);
+                                mGeofenceRadius.remove(i);
+                            }
+                        }
+                        //Re do new list of GeoFences
+                        mGeofenceStore = new GeofenceStore(this, mGeofences);
+                        break;
+                    }
+
+                }
+            }*/
+       // }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        // TODO Auto-generated method stub
+        Log.w("ClickOutsideIf", String.valueOf(customMarkers.size()));
+        customMarkers.get(3).remove();
+        customMarkers.remove(3);//remove from list
+        allCircles.get(3).remove();
+        allCircles.remove(3);
+        allCircles.get(3).remove();
+        allCircles.remove(3);
+        mGeofences.remove(3);
+        mGeofenceCoordinates.remove(3);
+        mGeofenceRadius.remove(3);
+       /* for(int i = 0; i < mGeofenceCoordinates.size()-1; i++){
+            if((Math.abs(mGeofenceCoordinates.get(i).latitude - marker.getPosition().latitude) < 0.05 && Math.abs(mGeofenceCoordinates.get(i).longitude - marker.getPosition().longitude) < 0.05)){
+                mGeofences.remove(i);
+                mGeofenceCoordinates.remove(i);
+                mGeofenceRadius.remove(i);
+            }
+        }*/
+        for(int j = 0; j < customMarkers.size()-1; j++){
+            if (marker.equals(customMarkers.get(j)) && removeMarkers) {
+                Log.w("ClickInside If", "testClick");
+
+                customMarkerCount--;
+                customMarkers.get(j).remove();//remove from map
+                customMarkers.remove(j);//remove from list
+                for(int i = 0; i < mGeofenceCoordinates.size()-1; i++){
+                    if((Math.abs(mGeofenceCoordinates.get(i).latitude - marker.getPosition().latitude) < 0.05 && Math.abs(mGeofenceCoordinates.get(i).longitude - marker.getPosition().longitude) < 0.05)){
+                        mGeofences.remove(i);
+                        mGeofenceCoordinates.remove(i);
+                        mGeofenceRadius.remove(i);
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    public void addVisualGeofence(){
+
+        Circle c1 = mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(mGeofenceCoordinates.size()-1))
+                .radius(mGeofenceRadius.get(mGeofenceRadius.size() - 1))
+                .fillColor(Color.argb(100, 255, 0, 0))
+                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+        Circle c2 = mMap.addCircle(new CircleOptions().center(mGeofenceCoordinates.get(mGeofenceCoordinates.size()-1))
+                .radius(mGeofenceRadius.get(mGeofenceRadius.size() - 1) / 3)
+                .fillColor(Color.argb(50, 200, 0, 0))
+                .strokeColor(Color.TRANSPARENT).strokeWidth(2));
+        allCircles.add(c1);
+        allCircles.add(c2);
     }
 }
 

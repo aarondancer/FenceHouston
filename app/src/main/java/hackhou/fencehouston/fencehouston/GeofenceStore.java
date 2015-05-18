@@ -118,6 +118,16 @@ public class GeofenceStore implements ConnectionCallbacks,
         return builder.build();
     }
 
+    public void removeGeofence(){
+
+        LocationServices.GeofencingApi.removeGeofences(
+                mGoogleApiClient,
+                // This is the same pending intent that was used in addGeofences().
+                mPendingIntent
+        ).setResultCallback(this); // Result processed in onResult().
+
+    }
+
     @Override
     public void onConnected(Bundle connectionHint) {
         // We're connected, now we need to create a GeofencingRequest with
