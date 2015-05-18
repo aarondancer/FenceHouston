@@ -3,13 +3,16 @@ package hackhou.fencehouston.fencehouston;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.provider.SyncStateContract;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -95,6 +98,29 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMapIfNeeded();
+
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+
+        Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        if (location != null)
+        {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(location.getLatitude(), location.getLongitude()), 13));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                    .zoom(17)                   // Sets the zoom
+                    //.bearing(90)                // Sets the orientation of the camera to east
+                    //.tilt(40)                   // Sets the tilt of the camera to 30 degrees
+                    .build();                   // Creates a CameraPosition from the builder
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+        }
+
+
+
+
         // Enable Local Datastore.
         Parse.enableLocalDatastore(this);
 
@@ -162,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
         addVisualGeofence();
 
         mGeofenceCoordinates.add(new LatLng(29.953475, -95.505225));
-        mGeofenceRadius.add(1000);
+        mGeofenceRadius.add(100);
         //Travis fire
         mGeofences.add(new Geofence.Builder()
                 .setRequestId("George's House")
@@ -414,7 +440,7 @@ public class MapsActivity extends FragmentActivity implements GoogleMap.OnCamera
                 //get the last added element to work with
                 Marker currentMarker = customMarkers.get(customMarkers.size() - 1);
                 mGeofenceCoordinates.add(currentMarker.getPosition());
-                mGeofenceRadius.add(250);
+                mGeofenceRadius.add(100);
 
                 mGeofences.add(new Geofence.Builder()
                         .setRequestId("CustomGeoFence#"+customMarkerCount)
